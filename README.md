@@ -37,7 +37,7 @@ homelab-manager host -p config --path ./config.yaml
   - Example:
   ```yml
   host:
-      - ip: 192.168.1.10
+    - ip: 192.168.1.10
       domain: example.com
     - ip: 192.168.1.10
       domain: example.com
@@ -45,8 +45,8 @@ homelab-manager host -p config --path ./config.yaml
         - sub1
         - sub2
     - ip: 192.168.1.11
-        domain: mysite.local
-        subdomains:
+      domain: mysite.local
+      subdomains:
         - sub1
   ```
 
