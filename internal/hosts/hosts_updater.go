@@ -58,10 +58,14 @@ func getHostsFilePath() string {
 
 func getNewLines(hostEntries []providers.HostEntry) []string {
 	var lines []string
+
 	for _, entry := range hostEntries {
+
 		// Add main domain
-		line := fmt.Sprintf("%s\t%s\t%s", entry.Ip, entry.Domain, marker)
-		lines = append(lines, line)
+		if len(entry.Subdomains) == 0 {
+			line := fmt.Sprintf("%s\t%s\t%s", entry.Ip, entry.Domain, marker)
+			lines = append(lines, line)
+		}
 
 		// Add subdomains
 		for _, sub := range entry.Subdomains {
