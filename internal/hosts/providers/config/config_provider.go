@@ -1,6 +1,7 @@
 package providers
 
 import (
+	"homelab-manager/internal/hosts/git"
 	"homelab-manager/internal/hosts/providers"
 	"os"
 
@@ -13,6 +14,7 @@ type YAMLProvider struct {
 
 type YAMLHostConfig struct {
 	Hosts []providers.HostEntry `yaml:"host"`
+	Git   git.GitConfig         `yaml:"git"`
 }
 
 func (p *YAMLProvider) GetHostEntries() ([]providers.HostEntry, error) {
@@ -27,4 +29,20 @@ func (p *YAMLProvider) GetHostEntries() ([]providers.HostEntry, error) {
 	}
 
 	return cfg.Hosts, nil
+}
+
+func (p *YAMLProvider) GetGitConfig() (git.GitConfig, error) {
+	var gitConfig git.GitConfig
+
+	data, err := os.ReadFile(p.Path)
+	if err != nil {
+		return gitConfig, err
+	}
+
+	var cfg YAMLHostConfig
+	if err := yaml.Unmarshal(data, &cfg); err != nil {
+		return gitConfig, err
+	}
+
+	return cfg.Git, nil
 }

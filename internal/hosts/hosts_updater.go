@@ -13,11 +13,11 @@ import (
 
 const marker = "#by-" + internal.APP_NAME
 
-func UpdateHosts(provider providers.HostProvider) error {
+func UpdateHosts(provider providers.HostProvider) ([]providers.HostEntry, error) {
 	hostsPath := getHostsFilePath()
 	file, err := os.Open(hostsPath)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	defer file.Close()
 
@@ -35,18 +35,18 @@ func UpdateHosts(provider providers.HostProvider) error {
 	}
 
 	if err := scanner.Err(); err != nil {
-		return err
+		return nil, err
 	}
 
 	hostEntries, err := provider.GetHostEntries()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	lines = append(lines, getNewLines(hostEntries)...)
 
 	output := strings.Join(lines, "\n") + "\n"
-	return os.WriteFile(hostsPath, []byte(output), 0644)
+	return hostEntries, os.WriteFile(hostsPath, []byte(output), 0644)
 }
 
 func getHostsFilePath() string {

@@ -9,6 +9,7 @@ import (
 
 	"homelab-manager/internal"
 	"homelab-manager/internal/hosts"
+	"homelab-manager/internal/hosts/git"
 	"homelab-manager/internal/hosts/providers"
 	configProvider "homelab-manager/internal/hosts/providers/config"
 
@@ -16,29 +17,16 @@ import (
 )
 
 var (
-	provider string
-	path     string
+	provider              string
+	path                  string
+	shouldPushHostsToRepo bool
 )
 
 var HostCmd = &cobra.Command{
 	Use:     CMD_NAME_HOST,
 	Short:   "Apply entries to the system's hosts file",
 	Example: getCommandExample(),
-	Run: func(cmd *cobra.Command, args []string) {
-
-		provider, err := getHostProvider(provider, path)
-		if err != nil {
-			fmt.Printf("❌ Failed to get provider: %v\n", err)
-			os.Exit(1)
-		}
-
-		if err := hosts.UpdateHosts(provider); err != nil {
-			fmt.Printf("❌ Failed to update hosts file: %v\n", err)
-			os.Exit(1)
-		}
-
-		fmt.Println("✅ Hosts file updated successfully.")
-	},
+	Run:     runCommand,
 }
 
 func init() {
@@ -47,6 +35,22 @@ func init() {
 
 	HostCmd.Flags().StringVarP(&path, "path", "", "", "Path/URL to data (required)")
 	HostCmd.MarkFlagRequired("path")
+
+	HostCmd.Flags().BoolVar(&shouldPushHostsToRepo, "push", false, "Push host data to remote Git repository")
+}
+
+func runCommand(cmd *cobra.Command, args []string) {
+	provider, err := getHostProvider(provider, path)
+	if err != nil {
+		fmt.Printf("❌ Failed to get provider: %v\n", err)
+		os.Exit(1)
+	}
+
+	hostEntries := updateHosts(provider)
+
+	if shouldPushHostsToRepo {
+		pushHostsDataToGit(hostEntries)
+	}
 }
 
 func getCommandExample() string {
@@ -59,6 +63,35 @@ func getCommandExample() string {
 	})
 
 	return msg
+}
+
+func updateHosts(provider providers.HostProvider) []providers.HostEntry {
+	hostEntries, err := hosts.UpdateHosts(provider)
+	if err != nil {
+		fmt.Printf("❌ Failed to update hosts file: %v\n", err)
+		os.Exit(1)
+	}
+
+	fmt.Println("✅ Hosts file updated successfully.")
+	return hostEntries
+}
+
+func pushHostsDataToGit(hostEntries []providers.HostEntry) {
+	fmt.Println("📦 Pushing host data to Git repository...")
+
+	ymlConfig := &configProvider.YAMLProvider{Path: path}
+	gitCfg, err := ymlConfig.GetGitConfig()
+	if err != nil {
+		fmt.Printf("❌ Failed to get git config: %v\n", err)
+		os.Exit(1)
+	}
+
+	if err := git.PushToGit(hostEntries, gitCfg); err != nil {
+		fmt.Printf("❌ Git push failed: %v\n", err)
+		os.Exit(1)
+	}
+
+	fmt.Println("✅ Pushed host data to git successfully.")
 }
 
 func getHostProvider(provider string, path string) (providers.HostProvider, error) {
