@@ -39,11 +39,11 @@ func PushToGit(entries []providers.HostEntry, gitCfg GitConfig) error {
 		return err
 	}
 
-	if err := doChangesExist(w); err != nil {
+	if err := writeDataToFile(localRepoPath, entries); err != nil {
 		return err
 	}
 
-	if err := writeDataToFile(localRepoPath, entries); err != nil {
+	if err := doChangesExist(w); err != nil {
 		return err
 	}
 
