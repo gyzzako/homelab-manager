@@ -15,4 +15,5 @@ type Provider string
 const (
 	ProviderConfig  Provider = "CONFIG"
 	ProviderSqlLite Provider = "SQL_LITE"
+	ProviderUrl     Provider = "URL"
 )
