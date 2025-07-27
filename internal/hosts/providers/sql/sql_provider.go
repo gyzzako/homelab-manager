@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"homelab-manager/internal/hosts/providers"
 	"strings"
+
+	_ "modernc.org/sqlite"
 )
 
 type SQLProvider struct {
@@ -14,15 +16,7 @@ type SQLProvider struct {
 }
 
 func (p *SQLProvider) GetHostEntries() ([]providers.HostEntry, error) {
-	var db *sql.DB
-	var err error
-
-	switch p.Type {
-	case "sqlite":
-		db, err = sql.Open("sqlite3", p.DataSource)
-	default:
-		return nil, fmt.Errorf("unsupported DB type: %s", p.Type)
-	}
+	db, err := getDbByType(p)
 	if err != nil {
 		return nil, err
 	}
@@ -55,14 +49,27 @@ func (p *SQLProvider) GetHostEntries() ([]providers.HostEntry, error) {
 	return entries, nil
 }
 
+func getDbByType(p *SQLProvider) (*sql.DB, error) {
+	switch p.Type {
+	case "sqlite":
+		return sql.Open("sqlite", p.DataSource)
+	default:
+		return nil, fmt.Errorf("unsupported DB type: %s", p.Type)
+	}
+}
+
 func parseDomain(fullDomain string) (domain string, subdomains []string) {
 	parts := strings.Split(fullDomain, ".")
+
 	if len(parts) < 2 {
 		return fullDomain, []string{}
 	}
 
-	domain = strings.Join(parts[len(parts)-2:], ".")
-	subdomains = parts[:len(parts)-2]
+	domainPartsCount := len(parts) - 1
 
+	domainParts := parts[len(parts)-domainPartsCount:]
+	domain = strings.Join(domainParts, ".")
+
+	subdomains = parts[:len(parts)-domainPartsCount]
 	return domain, subdomains
 }

@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"homelab-manager/cmd/commands"
+	"homelab-manager/cmd/commands/hosts"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -14,7 +14,7 @@ func main() {
 		Short: "CLI tool for homelab management",
 	}
 
-	rootCmd.AddCommand(commands.HostCmd)
+	rootCmd.AddCommand(hosts.HostCmd)
 
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
