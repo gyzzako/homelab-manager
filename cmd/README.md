@@ -64,4 +64,17 @@ homelab-manager host -p url --path https://api.example.com/hosts -t your-auth-to
 - `url`: Fetches host data from a remote URL endpoint.
   - Path must be a valid URL (e.g., `https://api.example.com/hosts`).
   - Requires authentication token via `--token` flag.
-
+  - Content structure:
+  ```yml
+    - ip: 192.168.1.10
+      domain: example.com
+    - ip: 192.168.1.10
+      domain: example.com
+      subdomains:
+        - sub1
+        - sub2
+    - ip: 192.168.1.11
+      domain: mysite.local
+      subdomains:
+        - sub1
+  ```
