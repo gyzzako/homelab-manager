@@ -1,52 +1,27 @@
-# `cmd` Package Documentation
+# Homelab Manager
+
+A CLI tool for homelab management that helps you manage your system's hosts file by applying entries from various data sources.
 
 ## Overview
 
-The `cmd` package implements the CLI logic
+Homelab Manager is a Go-based command-line application designed to simplify the management of your system's hosts file. It supports multiple data providers and can automatically update your hosts file with entries from configuration files or remote URLs.
 
-## Host Command
+## Features
 
-### Description
+- **Multiple Data Providers**: Support for YAML configuration files and URL-based data sources
+- **Git Integration**: Push host data to remote Git repositories for backup and versioning
+- **Authentication Support**: Token-based authentication for secure URL providers
+- **Cross-Platform**: Works on Windows, macOS, and Linux
 
-The `host` command applies entries to the system's `hosts` file based on data provided via supported sources.
+## Installation
 
-### Usage
-
-```sh
-homelab-manager host --provider <provider> --path <path>
+```bash
+go build -o homelab-manager cmd/main.go
 ```
+## Commands
 
-### Flags
+### Host Command
 
-| Flag        | Shorthand | Description                    | Required |
-|-------------|-----------|--------------------------------|----------|
-| `--provider`| `-p`      | Specifies the data provider    | Yes      |
-| `--path`    |           | Path or URL to provider data   | Yes      |
+The primary command for managing hosts file entries.
 
-### Example
-
-```sh
-homelab-manager host --provider config --path ./config.yaml
-homelab-manager host -p config --path ./config.yaml
-```
-
-### Supported Providers
-
-- `config`: Uses a YAML file as the source of host entries.
-  - Path must point to a valid YAML file (e.g., `./config.yaml`).
-  - Example:
-  ```yml
-  host:
-    - ip: 192.168.1.10
-      domain: example.com
-    - ip: 192.168.1.10
-      domain: example.com
-      subdomains:
-        - sub1
-        - sub2
-    - ip: 192.168.1.11
-      domain: mysite.local
-      subdomains:
-        - sub1
-  ```
-
+**📖 For complete documentation, usage examples, and all available parameters, see the [Host Command Documentation](cmd/README.md).**
