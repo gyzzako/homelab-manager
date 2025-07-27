@@ -40,9 +40,8 @@ func init() {
 	HostCmd.MarkFlagRequired("path")
 
 	HostCmd.Flags().StringVarP(&token, "token", "t", "", "Authentication token (optional)")
-	HostCmd.MarkFlagRequired("token")
 
-	HostCmd.Flags().BoolVar(&shouldPushHostsToRepo, "push", false, "Push host data to remote Git repository")
+	HostCmd.Flags().BoolVar(&shouldPushHostsToRepo, "push", false, "Push host data to remote Git repository (optional)")
 }
 
 func runCommand(cmd *cobra.Command, args []string) {
