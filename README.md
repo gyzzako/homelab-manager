@@ -24,4 +24,4 @@ go build -o homelab-manager cmd/main.go
 
 The primary command for managing hosts file entries.
 
-**📖 For complete documentation, usage examples, and all available parameters, see the [Host Command Documentation](cmd/README.md).**
+**📖 For complete documentation, usage examples, and all available parameters, see the [Command Documentation](cmd/README.md).**
