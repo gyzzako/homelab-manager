@@ -17,7 +17,7 @@ import (
 )
 
 type GitConfig struct {
-	Url   string `yaml:"url"`
+	URL   string `yaml:"url"`
 	Token string `yaml:"token"`
 }
 
@@ -70,7 +70,7 @@ func PushToGit(entries []providers.HostEntry, gitCfg GitConfig) error {
 
 func cloneRepo(localRepoPath string, gitCfg GitConfig) (*git.Repository, error) {
 	repo, err := git.PlainClone(localRepoPath, false, &git.CloneOptions{
-		URL: gitCfg.Url,
+		URL: gitCfg.URL,
 		Auth: &http.BasicAuth{
 			Username: "homelab-manager",
 			Password: gitCfg.Token,
@@ -96,7 +96,7 @@ func handleEmptyRepo(localRepoPath string, gitCfg GitConfig) (*git.Repository, e
 
 	_, err = repo.CreateRemote(&config.RemoteConfig{
 		Name: "origin",
-		URLs: []string{gitCfg.Url},
+		URLs: []string{gitCfg.URL},
 	})
 	if err != nil {
 		return repo, err

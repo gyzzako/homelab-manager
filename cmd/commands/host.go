@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/spf13/cobra"
 
@@ -12,6 +13,7 @@ import (
 	"homelab-manager/internal/hosts/git"
 	"homelab-manager/internal/hosts/providers"
 	configProvider "homelab-manager/internal/hosts/providers/config"
+	urlProvider "homelab-manager/internal/hosts/providers/url"
 
 	"homelab-manager/utils"
 )
@@ -20,6 +22,7 @@ var (
 	provider              string
 	path                  string
 	shouldPushHostsToRepo bool
+	token                 string
 )
 
 var HostCmd = &cobra.Command{
@@ -36,17 +39,25 @@ func init() {
 	HostCmd.Flags().StringVarP(&path, "path", "", "", "Path/URL to data (required)")
 	HostCmd.MarkFlagRequired("path")
 
+	HostCmd.Flags().StringVarP(&token, "token", "t", "", "Authentication token (optional)")
+	HostCmd.MarkFlagRequired("token")
+
 	HostCmd.Flags().BoolVar(&shouldPushHostsToRepo, "push", false, "Push host data to remote Git repository")
 }
 
 func runCommand(cmd *cobra.Command, args []string) {
-	provider, err := getHostProvider(provider, path)
+	provider, hostProvider, err := getHostProvider(provider)
 	if err != nil {
 		fmt.Printf("❌ Failed to get provider: %v\n", err)
 		os.Exit(1)
 	}
 
-	hostEntries := updateHosts(provider)
+	if err := validateParams(provider); err != nil {
+		fmt.Printf("❌ Invalid param(s) : %v\n", err)
+		os.Exit(1)
+	}
+
+	hostEntries := updateHosts(hostProvider)
 
 	if shouldPushHostsToRepo {
 		pushHostsDataToGit(hostEntries)
@@ -94,11 +105,22 @@ func pushHostsDataToGit(hostEntries []providers.HostEntry) {
 	fmt.Println("✅ Pushed host data to git successfully.")
 }
 
-func getHostProvider(provider string, path string) (providers.HostProvider, error) {
-	switch provider {
-	case "config":
-		return &configProvider.YAMLProvider{Path: path}, nil
+func getHostProvider(provider string) (providers.Provider, providers.HostProvider, error) {
+	var defaultProvider providers.Provider
+	switch strings.ToUpper(provider) {
+	case string(providers.ProviderConfig):
+		return providers.ProviderConfig, &configProvider.YAMLProvider{Path: path}, nil
+	case string(providers.ProviderUrl):
+		return providers.ProviderUrl, &urlProvider.URLProvider{URL: path, Token: token}, nil
 	default:
-		return nil, errors.New("Provider " + provider + " not supported")
+		return defaultProvider, nil, errors.New("Provider " + provider + " not supported")
 	}
+}
+
+func validateParams(provider providers.Provider) error {
+	if provider == providers.ProviderUrl && shouldPushHostsToRepo {
+		return fmt.Errorf("push param not supported with URL provider")
+	}
+
+	return nil
 }
