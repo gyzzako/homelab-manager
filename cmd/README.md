@@ -59,6 +59,10 @@ homelab-manager host -p url --path https://api.example.com/hosts -t your-auth-to
       domain: mysite.local
       subdomains:
         - sub1
+
+  git:
+    url: https://github.com/user/repo.git
+    token: github_token
   ```
 
 - `url`: Fetches host data from a remote URL endpoint.
