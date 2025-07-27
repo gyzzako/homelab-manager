@@ -13,17 +13,13 @@ import (
 	"github.com/go-git/go-git/v5/plumbing/transport/http"
 	"gopkg.in/yaml.v3"
 
+	hostConfig "homelab-manager/internal/hosts/config"
 	"homelab-manager/internal/hosts/providers"
 )
 
-type GitConfig struct {
-	URL   string `yaml:"url"`
-	Token string `yaml:"token"`
-}
-
 const HOST_DATA_FILE_NAME = "host_entries.yml"
 
-func PushToGit(entries []providers.HostEntry, gitCfg GitConfig) error {
+func PushToGit(entries []providers.HostEntry, gitCfg hostConfig.GitConfig) error {
 	dir := os.TempDir()
 	localRepoPath := filepath.Join(dir, "homelab-git")
 
@@ -68,7 +64,7 @@ func PushToGit(entries []providers.HostEntry, gitCfg GitConfig) error {
 	})
 }
 
-func cloneRepo(localRepoPath string, gitCfg GitConfig) (*git.Repository, error) {
+func cloneRepo(localRepoPath string, gitCfg hostConfig.GitConfig) (*git.Repository, error) {
 	repo, err := git.PlainClone(localRepoPath, false, &git.CloneOptions{
 		URL: gitCfg.URL,
 		Auth: &http.BasicAuth{
@@ -88,7 +84,7 @@ func cloneRepo(localRepoPath string, gitCfg GitConfig) (*git.Repository, error) 
 	return repo, nil
 }
 
-func handleEmptyRepo(localRepoPath string, gitCfg GitConfig) (*git.Repository, error) {
+func handleEmptyRepo(localRepoPath string, gitCfg hostConfig.GitConfig) (*git.Repository, error) {
 	repo, err := git.PlainInit(localRepoPath, false)
 	if err != nil {
 		return repo, err
