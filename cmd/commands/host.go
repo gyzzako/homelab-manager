@@ -18,6 +18,14 @@ import (
 	"homelab-manager/utils"
 )
 
+const (
+	CMD_NAME_HOST       = "host"
+	PARAM_NAME_PROVIDER = "provider"
+	PARAM_NAME_PATH     = "path"
+	PARAM_NAME_TOKEN    = "token"
+	PARAM_NAME_PUSH     = "push"
+)
+
 var (
 	provider              string
 	path                  string
@@ -33,15 +41,15 @@ var HostCmd = &cobra.Command{
 }
 
 func init() {
-	HostCmd.Flags().StringVarP(&provider, "provider", "p", "", "Data provider (required)")
-	HostCmd.MarkFlagRequired("provider")
+	HostCmd.Flags().StringVarP(&provider, PARAM_NAME_PROVIDER, "p", "", "Data provider (required)")
+	HostCmd.MarkFlagRequired(PARAM_NAME_PROVIDER)
 
-	HostCmd.Flags().StringVarP(&path, "path", "", "", "Path/URL to data (required)")
-	HostCmd.MarkFlagRequired("path")
+	HostCmd.Flags().StringVarP(&path, PARAM_NAME_PATH, "", "", "Path/URL to data (required)")
+	HostCmd.MarkFlagRequired(PARAM_NAME_PATH)
 
-	HostCmd.Flags().StringVarP(&token, "token", "t", "", "Authentication token (optional)")
+	HostCmd.Flags().StringVarP(&token, PARAM_NAME_TOKEN, "t", "", "Authentication token (optional)")
 
-	HostCmd.Flags().BoolVar(&shouldPushHostsToRepo, "push", false, "Push host data to remote Git repository (optional)")
+	HostCmd.Flags().BoolVar(&shouldPushHostsToRepo, PARAM_NAME_PUSH, false, "Push host data to remote Git repository (optional)")
 }
 
 func runCommand(cmd *cobra.Command, args []string) {
@@ -64,12 +72,16 @@ func runCommand(cmd *cobra.Command, args []string) {
 }
 
 func getCommandExample() string {
-	template := `  {APP_NAME} {HOST} --config config.yaml
-  {APP_NAME} {HOST} -c config.yaml`
+	template := `  {APP_NAME} {HOST} --{PARAM_NAME_PROVIDER} config --{PARAM_NAME_PATH} ./config.yml
+  {APP_NAME} {HOST} --{PARAM_NAME_PROVIDER} config --{PARAM_NAME_PATH} ./config.yml --{PARAM_NAME_PUSH}
+  {APP_NAME} {HOST} --{PARAM_NAME_PROVIDER} url --{PARAM_NAME_PATH} https://api.example.com/hosts --{PARAM_NAME_PUSH} your-auth-token`
 
 	msg := utils.ReplaceMany(template, map[string]string{
-		"{APP_NAME}": internal.APP_NAME,
-		"{HOST}":     CMD_NAME_HOST,
+		"{APP_NAME}":            internal.APP_NAME,
+		"{HOST}":                CMD_NAME_HOST,
+		"{PARAM_NAME_PROVIDER}": PARAM_NAME_PROVIDER,
+		"{PARAM_NAME_PATH}":     PARAM_NAME_PATH,
+		"{PARAM_NAME_PUSH}":     PARAM_NAME_PUSH,
 	})
 
 	return msg
