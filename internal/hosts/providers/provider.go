@@ -13,7 +13,7 @@ type HostProvider interface {
 type Provider string
 
 const (
-	ProviderConfig  Provider = "CONFIG"
-	ProviderSqlLite Provider = "SQL_LITE"
-	ProviderUrl     Provider = "URL"
+	ProviderConfig Provider = "CONFIG"
+	ProviderSql    Provider = "SQL"
+	ProviderUrl    Provider = "URL"
 )
