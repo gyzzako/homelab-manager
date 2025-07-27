@@ -13,6 +13,7 @@ import (
 	"homelab-manager/internal/hosts/git"
 	"homelab-manager/internal/hosts/providers"
 	configProvider "homelab-manager/internal/hosts/providers/config"
+	sqlProvider "homelab-manager/internal/hosts/providers/sql"
 	urlProvider "homelab-manager/internal/hosts/providers/url"
 
 	"homelab-manager/utils"
@@ -123,6 +124,12 @@ func getHostProvider(provider string) (providers.Provider, providers.HostProvide
 		return providers.ProviderConfig, &configProvider.YAMLProvider{Path: path}, nil
 	case string(providers.ProviderUrl):
 		return providers.ProviderUrl, &urlProvider.URLProvider{URL: path, Token: token}, nil
+	case string(providers.ProviderSql):
+		return providers.ProviderSql, &sqlProvider.SQLProvider{
+			DataSource: "",
+			Type:       "",
+			Query:      "",
+		}, nil
 	default:
 		return defaultProvider, nil, errors.New("Provider " + provider + " not supported")
 	}
